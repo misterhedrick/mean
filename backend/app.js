@@ -1,18 +1,52 @@
 const express = require('express');
+const bodyParser = require("body-parser");
+const mongoose = require('mongoose');
+const Post = require('./models/post');
 
 const app = express();
-
-
-app.use('/api/posts', (req, res, next) => {
-  const posts = [
-    { id: '1', title: 'First post', content: 'from the server 1' },
-    { id: '2', title: 'second post', content: 'from the server 2' },
-    { id: '3', title: 'third post', content: 'from the server 3' },
-  ];
-  res.status(200).json({
-    message: 'Posts fetched successfully',
-    posts: posts
+//./mongo "mongodb+srv://cluster0-ndjug.mongodb.net/test" --username daniel
+//password = SdAoFjm2XyqWBrpH
+mongoose.connect("mongodb+srv://daniel:SdAoFjm2XyqWBrpH@cluster0-ndjug.mongodb.net/node-angular?retryWrites=true")
+  .then(() => {
+    console.log('connected to database');
+  })
+  .catch(() => {
+    console.log('connection failed');
   });
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
+
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
+  next();
+});
+
+app.post("/api/posts", (req, res, next) => {
+  const post = new Post({
+    title: req.body.title,
+    content: req.body.content
+  });
+  post.save();
+  res.status(201).json({
+    message: 'Post added successfully'
+  });
+});
+
+
+
+app.get('/api/posts', (req, res, next) => {
+  Post.find()
+    .then(documents => {
+      res.status(200).json({
+        message: 'Posts fetched successfully',
+        posts: documents
+      });
+    });
+
 });
 
 module.exports = app;
