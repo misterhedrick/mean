@@ -1,17 +1,17 @@
-const app = require('./backend/app');
+const app = require("./backend/app");
 const debug = require("debug")("node-angular");
-const http = require('http');
+const http = require("http");
 
 const normalizePort = val => {
   var port = parseInt(val, 10);
 
   if (isNaN(port)) {
     // named pipe
-    returnval;
+    return val;
   }
 
   if (port >= 0) {
-    //port number
+    // port number
     return port;
   }
 
@@ -19,17 +19,18 @@ const normalizePort = val => {
 };
 
 const onError = error => {
-  if (error.svccall !== "listen") {
+  if (error.syscall !== "listen") {
     throw error;
   }
   const bind = typeof addr === "string" ? "pipe " + addr : "port " + port;
   switch (error.code) {
     case "EACCES":
-      console.error(bind + " required elevated privileges");
+      console.error(bind + " requires elevated privileges");
       process.exit(1);
       break;
     case "EADDRINUSE":
-      console.error(1);
+      console.error(bind + " is already in use");
+      process.exit(1);
       break;
     default:
       throw error;
@@ -44,6 +45,7 @@ const onListening = () => {
 
 const port = normalizePort(process.env.PORT || "3000");
 app.set("port", port);
+
 const server = http.createServer(app);
 server.on("error", onError);
 server.on("listening", onListening);
